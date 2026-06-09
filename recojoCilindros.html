@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de recojo de Cilindros en Ruta</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --primary-color: #00adb5;
+            --secondary-color: #393e46;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --whatsapp-color: #25D366;
+            --text-main: #eeeeee;
+            --text-muted: #a4a4a4;
+            --border-radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app-container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 420px; 
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: fit-content;
+            position: relative;
+        }
+
+        header {
+            background-color: #181818;
+            padding: 24px 20px;
+            text-align: center;
+            border-bottom: 2px solid var(--primary-color);
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+        }
+
+        .btn-settings {
+            position: absolute;
+            right: 20px;
+            top: 24px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-main);
+            transition: transform 0.3s;
+        }
+        
+        .btn-settings:hover {
+            transform: rotate(90deg);
+            color: var(--primary-color);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 24px; 
+            padding: 30px 25px;
+            border-bottom: 1px solid #333;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 8px;
+            margin-bottom: -5px; 
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 16px; 
+            border-radius: 8px;
+            border: 1px solid #333;
+            background-color: #2a2a2a;
+            color: var(--text-main);
+            font-size: 1.1rem; 
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary-color);
+            background-color: #333;
+        }
+
+        /* Opciones de archivos personalizados */
+        input[type="file"] {
+            display: none;
+        }
+
+        .custom-file-upload {
+            border: 1px solid var(--primary-color);
+            display: inline-block;
+            padding: 14px;
+            cursor: pointer;
+            border-radius: 8px;
+            background-color: #222831;
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 0.95rem;
+            margin-top: 5px;
+        }
+
+        .custom-file-upload:active { opacity: 0.8; }
+
+        .btn-add-item {
+            background-color: var(--secondary-color);
+            color: #fff;
+            font-weight: bold;
+            font-size: 1rem;
+            padding: 14px;
+            border: 1px dashed var(--primary-color);
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: opacity 0.3s;
+            width: 100%;
+        }
+        .btn-add-item:active { opacity: 0.8; }
+
+        .lista-temp {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 5px;
+        }
+
+        .lista-temp li {
+            background-color: #222831;
+            padding: 12px 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .item-detalles-texto {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 90%;
+        }
+
+        .btn-delete-item {
+            background: none;
+            border: none;
+            color: var(--danger-color);
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .btn-submit {
+            background-color: var(--primary-color);
+            color: #121212;
+            font-weight: bold;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            padding: 20px; 
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 4px 12px rgba(0, 173, 181, 0.3);
+        }
+
+        .btn-submit:active {
+            transform: scale(0.98);
+        }
+
+        .lista-container {
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .lista-container h3 {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .recojo-card {
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .recojo-info p {
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+            line-height: 1.5;
+        }
+
+        .recojo-info strong { color: var(--primary-color); }
+        
+        .detalle-gases {
+            background-color: #1e1e1e;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 8px;
+            font-size: 0.95rem;
+            color: #ddd;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .cilindro-obs-box {
+            background-color: #262626;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border-left: 3px solid var(--warning-color);
+            font-size: 0.9rem;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: #444;
+            margin: 8px 0;
+        }
+
+        .acciones {
+            display: flex;
+            gap: 12px;
+            margin-top: 5px;
+        }
+
+        .btn-accion {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: white;
+            transition: opacity 0.2s;
+        }
+
+        .btn-accion:hover { opacity: 0.9; }
+        .btn-editar { background-color: var(--warning-color); color: #121212; }
+        .btn-eliminar { background-color: var(--danger-color); }
+        
+        .btn-whatsapp {
+            background-color: var(--whatsapp-color);
+            color: #ffffff;
+            width: 100%;
+            margin-top: 8px;
+            font-size: 0.95rem;
+        }
+
+        .btn-reset {
+            background-color: transparent;
+            color: var(--danger-color);
+            border: 2px solid var(--danger-color);
+            font-weight: bold;
+            font-size: 1rem;
+            padding: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .btn-reset:hover, .btn-reset:active {
+            background-color: var(--danger-color);
+            color: #ffffff;
+        }
+
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; 
+            background-color: rgba(0,0,0,0.85); justify-content: center; align-items: center; backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background-color: var(--card-bg); width: 90%; max-width: 400px; border-radius: var(--border-radius);
+            padding: 25px; position: relative; max-height: 85vh; overflow-y: auto; border: 1px solid #333;
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px;
+        }
+        .modal-header h2 { font-size: 1.2rem; color: var(--primary-color); }
+        .close-modal { color: var(--text-muted); font-size: 1.5rem; cursor: pointer; border: none; background: none; }
+        .config-block { margin-bottom: 25px; }
+        .config-block h3 { font-size: 0.9rem; margin-bottom: 10px; color: var(--text-main); }
+        .config-input-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        .config-input-group input { padding: 10px; font-size: 0.95rem; flex: 1;}
+        .btn-add-config { background-color: var(--primary-color); color: #121212; border: none; border-radius: 8px; padding: 0 15px; font-weight: bold; cursor: pointer; }
+        .config-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+        .config-list li { background-color: #2a2a2a; padding: 10px 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; border-left: 3px solid #444; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <header>
+            <h1>RECOJO - LINDE PIURA</h1>
+            <button class="btn-settings" id="btnOpenConfig" title="Configurar Opciones">⚙️</button>
+        </header>
+
+        <form id="formRecojo">
+            <input type="hidden" id="edit_id" value="">
+
+            <div class="section-title">Datos Operativos</div>
+            
+            <div class="form-group">
+                <label for="vehiculo">Placa Vehículo</label>
+                <input type="text" id="vehiculo" placeholder="Ej. P1A-234" required>
+            </div>
+
+            <div class="form-group">
+                <label for="secuencia">Secuencia / Orden (Opcional)</label>
+                <input type="text" id="secuencia" placeholder="Ej. 1, 2, 3...">
+            </div>
+
+            <div class="form-group">
+                <label for="conductor">Conductor</label>
+                <input type="text" id="conductor" placeholder="Nombre completo" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="auxiliar">Auxiliar</label>
+                <input type="text" id="auxiliar" placeholder="Nombre completo" required>
+            </div>
+
+            <div class="section-title" style="margin-top: 15px;">Datos del Cliente y Carga</div>
+
+            <div class="form-group">
+                <label for="cliente">Cliente / Empresa</label>
+                <input type="text" id="cliente" placeholder="Ej. Taller Los Andes" required>
+            </div>
+
+            <div style="background-color: #1a1a1a; padding: 15px; border-radius: 8px; border: 1px solid #333;">
+                <div class="form-group">
+                    <label for="tipo_operacion">Tipo de Operación</label>
+                    <select id="tipo_operacion">
+                        <option value="Recojo">Recojo</option>
+                        <option value="Libre cambio">Libre cambio</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-top: 15px;">
+                    <label for="tipo_gas">Tipo de Gas</label>
+                    <select id="tipo_gas"></select>
+                </div>
+
+                <div class="form-group" style="margin-top: 15px;">
+                    <label for="capacidad">Capacidad del Cilindro</label>
+                    <select id="capacidad"></select>
+                </div>
+
+                <div class="form-group" style="margin-top: 15px;">
+                    <label for="cantidad">Cantidad de Cilindros</label>
+                    <input type="number" id="cantidad" placeholder="0" min="1">
+                </div>
+
+                <div class="section-title" style="font-size: 0.75rem; color: var(--warning-color); margin-top: 15px; border-bottom: 0px;">Observación de Cilindros (Opcional)</div>
+                <div class="form-group" style="margin-top: 5px;">
+                    <label for="observacion_estado">Descripción del daño</label>
+                    <input type="text" id="observacion_estado" placeholder="Ej. Cilindro golpeado, válvula rota...">
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>Adjuntar Fotografía</label>
+                    <label for="foto_estado" class="custom-file-upload">📷 Tomar foto / Subir archivo</label>
+                    <input type="file" id="foto_estado" accept="image/*">
+                    <p id="archivoCargado" style="font-size: 0.8rem; color: var(--primary-color); margin-top: 5px; display: none;">Archivo cargado correctamente.</p>
+                </div>
+
+                <button type="button" class="btn-add-item" onclick="agregarDetalle()">➕ Añadir a la Carga</button>
+            </div>
+
+            <ul class="lista-temp" id="listaDetallesTemp"></ul>
+
+            <button type="submit" id="btnSubmit" class="btn-submit">💾 Guardar Recojo Completo</button>
+        </form>
+
+        <div class="lista-container">
+            <h3>Historial de Ruta (Local)</h3>
+            <div id="listaRecojos"></div>
+            <button type="button" id="btnNuevaRuta" class="btn-reset">⚠️ Iniciar Nuevo Recojo</button>
+        </div>
+    </div>
+
+    <div id="configModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚙️ Configuraciones</h2>
+                <button class="close-modal" id="btnCloseConfig">✖</button>
+            </div>
+            <div class="config-block">
+                <h3>Tipos de Gas</h3>
+                <div class="config-input-group">
+                    <input type="text" id="nuevoGas" placeholder="Ej. Helio">
+                    <button class="btn-add-config" onclick="agregarOpcion('gas')">Añadir</button>
+                </div>
+                <ul class="config-list" id="listaConfigGas"></ul>
+            </div>
+            <div class="config-block">
+                <h3>Capacidades</h3>
+                <div class="config-input-group">
+                    <input type="text" id="nuevaCapacidad" placeholder="Ej. 15kg">
+                    <button class="btn-add-config" onclick="agregarOpcion('capacidad')">Añadir</button>
+                </div>
+                <ul class="config-list" id="listaConfigCap"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let opcionesGas = JSON.parse(localStorage.getItem('opcionesGas')) || ["Oxígeno Industrial", "Argón", "Acetileno", "GLP", "Nitrógeno"];
+        let opcionesCap = JSON.parse(localStorage.getItem('opcionesCap')) || ["10m3", "8m3", "6m3", "45kg", "10kg"];
+
+        const selectGas = document.getElementById('tipo_gas');
+        const selectCapacidad = document.getElementById('capacidad');
+        
+        function renderizarSelects() {
+            const valGasActual = selectGas.value;
+            const valCapActual = selectCapacidad.value;
+            selectGas.innerHTML = '<option value="" disabled selected>Seleccione el tipo de gas...</option>';
+            opcionesGas.forEach(gas => { selectGas.innerHTML += `<option value="${gas}">${gas}</option>`; });
+            selectCapacidad.innerHTML = '<option value="" disabled selected>Seleccione la capacidad...</option>';
+            opcionesCap.forEach(cap => { selectCapacidad.innerHTML += `<option value="${cap}">${cap}</option>`; });
+            if (valGasActual) selectGas.value = valGasActual;
+            if (valCapActual) selectCapacidad.value = valCapActual;
+        }
+
+        const modal = document.getElementById('configModal');
+        document.getElementById('btnOpenConfig').onclick = () => { renderizarListasModal(); modal.style.display = "flex"; }
+        document.getElementById('btnCloseConfig').onclick = () => { modal.style.display = "none"; renderizarSelects(); }
+
+        function renderizarListasModal() {
+            const ulGas = document.getElementById('listaConfigGas');
+            const ulCap = document.getElementById('listaConfigCap');
+            ulGas.innerHTML = ''; opcionesGas.forEach((gas, index) => { ulGas.innerHTML += `<li>${gas} <button class="btn-delete-config" onclick="eliminarOpcion('gas', ${index})">✖</button></li>`; });
+            ulCap.innerHTML = ''; opcionesCap.forEach((cap, index) => { ulCap.innerHTML += `<li>${cap} <button class="btn-delete-config" onclick="eliminarOpcion('capacidad', ${index})">✖</button></li>`; });
+        }
+
+        function agregarOpcion(tipo) {
+            const input = document.getElementById(tipo === 'gas' ? 'nuevoGas' : 'nuevaCapacidad');
+            const valor = input.value.trim();
+            const arrayObj = tipo === 'gas' ? opcionesGas : opcionesCap;
+            const storageKey = tipo === 'gas' ? 'opcionesGas' : 'opcionesCap';
+            if (valor && !arrayObj.includes(valor)) {
+                arrayObj.push(valor);
+                localStorage.setItem(storageKey, JSON.stringify(arrayObj));
+                input.value = '';
+                renderizarListasModal();
+            }
+        }
+
+        function eliminarOpcion(tipo, index) {
+            const arrayObj = tipo === 'gas' ? opcionesGas : opcionesCap;
+            const storageKey = tipo === 'gas' ? 'opcionesGas' : 'opcionesCap';
+            arrayObj.splice(index, 1);
+            localStorage.setItem(storageKey, JSON.stringify(arrayObj));
+            renderizarListasModal();
+        }
+
+        let detallesTemp = [];
+
+        // Lector de imagen asíncrono convertido a Base64
+        function leerArchivoBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        async function agregarDetalle() {
+            const tipoOp = document.getElementById('tipo_operacion').value;
+            const gas = selectGas.value;
+            const cap = selectCapacidad.value;
+            const cant = document.getElementById('cantidad').value;
+            const obs = document.getElementById('observacion_estado').value.trim();
+            const fotoInput = document.getElementById('foto_estado');
+
+            if (!gas || !cap || !cant || cant <= 0) {
+                alert("Por favor, complete Gas, Capacidad y Cantidad válida para añadir a la carga.");
+                return;
+            }
+
+            let imagenBase64 = '';
+            if (fotoInput.files && fotoInput.files[0]) {
+                try {
+                    imagenBase64 = await leerArchivoBase64(fotoInput.files[0]);
+                } catch(err) {
+                    console.error("Error al procesar la imagen", err);
+                }
+            }
+
+            detallesTemp.push({ 
+                tipo_operacion: tipoOp, 
+                tipo_gas: gas, 
+                capacidad: cap, 
+                cantidad: cant,
+                observacion: obs,
+                foto: imagenBase64
+            });
+            
+            // Reset de opciones
+            selectGas.value = "";
+            selectCapacidad.value = "";
+            document.getElementById('cantidad').value = "";
+            document.getElementById('tipo_operacion').value = "Recojo";
+            document.getElementById('observacion_estado').value = "";
+            fotoInput.value = "";
+            document.getElementById('archivoCargado').style.display = 'none';
+            
+            renderizarDetallesTemp();
+        }
+
+        // Mostrar notificación de archivo cargado
+        document.getElementById('foto_estado').addEventListener('change', function() {
+            if (this.files && this.files.length > 0) {
+                document.getElementById('archivoCargado').style.display = 'block';
+            } else {
+                document.getElementById('archivoCargado').style.display = 'none';
+            }
+        });
+
+        function eliminarDetalleTemp(index) {
+            detallesTemp.splice(index, 1);
+            renderizarDetallesTemp();
+        }
+
+        function renderizarDetallesTemp() {
+            const ul = document.getElementById('listaDetallesTemp');
+            ul.innerHTML = '';
+            detallesTemp.forEach((detalle, index) => {
+                const badgeColor = detalle.tipo_operacion === 'Recojo' ? '#00adb5' : '#f39c12';
+                let obsMini = '';
+                if(detalle.observacion !== '') {
+                    obsMini = `<em style="font-size: 0.8rem; color: var(--warning-color); display:block; margin-top:3px;">⚠️ Obs: ${detalle.observacion}</em>`;
+                }
+                let imgMini = '';
+                if(detalle.foto !== '') {
+                    imgMini = `<img src="${detalle.foto}" style="width: 35px; height: 35px; object-fit:cover; border-radius: 4px; border:1px solid #444;" />`;
+                }
+
+                ul.innerHTML += `
+                    <li>
+                        <div class="item-detalles-texto">
+                            <span>
+                                <strong style="color: ${badgeColor}; font-size: 0.75rem; text-transform:uppercase; border: 1px solid ${badgeColor}; padding: 2px 4px; border-radius: 4px; margin-right: 5px;">${detalle.tipo_operacion}</strong> 
+                                ${detalle.cantidad}x <strong>${detalle.tipo_gas}</strong> (${detalle.capacidad})
+                            </span>
+                            ${obsMini}
+                        </div>
+                        <div style="display:flex; align-items:center; gap:5px;">
+                            ${imgMini}
+                            <button type="button" class="btn-delete-item" onclick="eliminarDetalleTemp(${index})">✖</button>
+                        </div>
+                    </li>
+                `;
+            });
+        }
+
+        let recojos = JSON.parse(localStorage.getItem('recojos')) || [];
+        const form = document.getElementById('formRecojo');
+        const listaDiv = document.getElementById('listaRecojos');
+        const btnSubmit = document.getElementById('btnSubmit');
+        const btnNuevaRuta = document.getElementById('btnNuevaRuta');
+
+        function renderizarLista() {
+            listaDiv.innerHTML = ''; 
+            if (recojos.length === 0) {
+                listaDiv.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:0.95rem; margin-top: 10px;">No hay recojos registrados aún.</p>';
+                btnNuevaRuta.style.display = 'none';
+                return;
+            }
+
+            btnNuevaRuta.style.display = 'block';
+            const recojosInvertidos = recojos.slice().reverse();
+
+            recojosInvertidos.forEach((recojo) => {
+                const card = document.createElement('div');
+                card.className = 'recojo-card';
+                
+                let gasesHTML = '';
+                if (recojo.detalles && recojo.detalles.length > 0) {
+                    recojo.detalles.forEach(d => {
+                        const badgeColor = d.tipo_operacion === 'Recojo' ? '#00adb5' : '#f39c12';
+                        
+                        let obsCard = '';
+                        if (d.observacion && d.observacion.trim() !== '') {
+                            obsCard = `<div class="cilindro-obs-box"><strong>Estado:</strong> ${d.observacion}</div>`;
+                        }
+
+                        let imgCard = '';
+                        if (d.foto && d.foto.trim() !== '') {
+                            imgCard = `<div style="margin-top:5px;"><a href="${d.foto}" target="_blank"><img src="${d.foto}" style="width: 70px; height: 70px; object-fit:cover; border-radius: 6px; border:1px solid #555" alt="Foto Daño" /></a><span style="font-size:0.7rem; display:block; color:#888;">(Toca para ampliar)</span></div>`;
+                        }
+
+                        gasesHTML += `
+                            <div style="border-bottom: 1px dashed #444; padding-bottom: 8px; margin-bottom: 5px;">
+                                <p><span style="color: ${badgeColor}; font-weight: bold;">[${d.tipo_operacion}]</span> ${d.cantidad} cil. de <strong>${d.tipo_gas}</strong> (${d.capacidad})</p>
+                                ${obsCard}
+                                ${imgCard}
+                            </div>`;
+                    });
+                }
+
+                let secHTML = '';
+                if (recojo.secuencia && recojo.secuencia.trim() !== "") {
+                    secHTML = ` | Seq: <strong>${recojo.secuencia}</strong>`;
+                }
+
+                card.innerHTML = `
+                    <div class="recojo-info">
+                        <p style="font-size: 0.85rem; color: #a4a4a4;">
+                            🚐 ${recojo.vehiculo}${secHTML} | Cond: ${recojo.conductor} | Aux: ${recojo.auxiliar}
+                        </p>
+                        <div class="divider"></div>
+                        <p style="font-size: 1.1rem;"><strong>Cliente:</strong> ${recojo.cliente}</p>
+                        <div class="detalle-gases">
+                            ${gasesHTML}
+                        </div>
+                    </div>
+                    <div class="acciones">
+                        <button type="button" class="btn-accion btn-editar" onclick="cargarEdicion(${recojo.id})">Editar</button>
+                        <button type="button" class="btn-accion btn-eliminar" onclick="eliminarRecojo(${recojo.id})">Eliminar</button>
+                    </div>
+                    <button type="button" class="btn-accion btn-whatsapp" onclick="compartirWhatsApp(${recojo.id})">📲 Compartir por WhatsApp</button>
+                `;
+                listaDiv.appendChild(card);
+            });
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); 
+            
+            if (detallesTemp.length === 0) {
+                alert("Debes añadir al menos un Gas a la carga usando el botón '➕ Añadir a la Carga'.");
+                return;
+            }
+
+            const idEdicion = document.getElementById('edit_id').value;
+            
+            const nuevoRecojo = {
+                id: idEdicion ? parseInt(idEdicion) : Date.now(), 
+                vehiculo: document.getElementById('vehiculo').value,
+                secuencia: document.getElementById('secuencia').value,
+                conductor: document.getElementById('conductor').value,
+                auxiliar: document.getElementById('auxiliar').value,
+                cliente: document.getElementById('cliente').value,
+                detalles: [...detallesTemp]
+            };
+
+            if (idEdicion) {
+                recojos = recojos.map(r => r.id === parseInt(idEdicion) ? nuevoRecojo : r);
+                document.getElementById('edit_id').value = ''; 
+                btnSubmit.innerHTML = '💾 Guardar Recojo Completo';
+                btnSubmit.style.backgroundColor = 'var(--primary-color)';
+            } else {
+                recojos.push(nuevoRecojo);
+            }
+
+            document.getElementById('cliente').value = '';
+            document.getElementById('secuencia').value = '';
+            selectGas.value = '';
+            selectCapacidad.value = '';
+            document.getElementById('cantidad').value = '';
+            document.getElementById('tipo_operacion').value = "Recojo";
+            document.getElementById('observacion_estado').value = '';
+            document.getElementById('foto_estado').value = '';
+            document.getElementById('archivoCargado').style.display = 'none';
+            detallesTemp = [];
+            renderizarDetallesTemp();
+
+            localStorage.setItem('recojos', JSON.stringify(recojos));
+            renderizarLista();
+        });
+
+        function cargarEdicion(id) {
+            const recojo = recojos.find(r => r.id === id);
+            if (recojo) {
+                document.getElementById('edit_id').value = recojo.id;
+                document.getElementById('vehiculo').value = recojo.vehiculo;
+                document.getElementById('secuencia').value = recojo.secuencia || '';
+                document.getElementById('conductor').value = recojo.conductor;
+                document.getElementById('auxiliar').value = recojo.auxiliar;
+                document.getElementById('cliente').value = recojo.cliente;
+                
+                detallesTemp = [...recojo.detalles];
+                renderizarDetallesTemp();
+
+                btnSubmit.innerHTML = '💾 Actualizar Recojo';
+                btnSubmit.style.backgroundColor = 'var(--warning-color)';
+                window.scrollTo({ top: 0, behavior: 'smooth' }); 
+            }
+        }
+
+        function eliminarRecojo(id) {
+            if (confirm('¿Estás seguro de eliminar todo el registro de este cliente?')) {
+                recojos = recojos.filter(r => r.id !== id);
+                localStorage.setItem('recojos', JSON.stringify(recojos));
+                
+                if (document.getElementById('edit_id').value == id) {
+                    document.getElementById('edit_id').value = '';
+                    document.getElementById('cliente').value = '';
+                    document.getElementById('secuencia').value = '';
+                    detallesTemp = [];
+                    renderizarDetallesTemp();
+                    btnSubmit.innerHTML = '💾 Guardar Recojo Completo';
+                    btnSubmit.style.backgroundColor = 'var(--primary-color)';
+                }
+                renderizarLista();
+            }
+        }
+
+        function compartirWhatsApp(id) {
+            const recojo = recojos.find(r => r.id === id);
+            if (!recojo) return;
+
+            let textoGases = '';
+            recojo.detalles.forEach(d => {
+                const iconoOp = d.tipo_operacion === 'Recojo' ? '📥' : '🔁';
+                textoGases += ` ${iconoOp} *${d.tipo_operacion}*: ${d.cantidad} cil. de *${d.tipo_gas}* (${d.capacidad})\n`;
+                
+                if (d.observacion && d.observacion.trim() !== '') {
+                    textoGases += `    ⚠️ *Obs de daño:* _${d.observacion}_\n`;
+                }
+                if (d.foto && d.foto.trim() !== '') {
+                    textoGases += `    📸 _(Fotografía adjunta en el sistema)_\n`;
+                }
+            });
+
+            let secWhatsApp = '';
+            if (recojo.secuencia && recojo.secuencia.trim() !== "") {
+                secWhatsApp = `🔢 *Secuencia / Parada:* ${recojo.secuencia}\n`;
+            }
+
+            const mensaje = `╭── 📦 *REPORTE DE CILINDROS* 📦 ──╮\n\n` +
+                            `🚐 *Placa Vehículo:* ${recojo.vehiculo}\n` +
+                            secWhatsApp +
+                            `👨‍✈️ *Conductor:* ${recojo.conductor}\n` +
+                            `👷 *Auxiliar:* ${recojo.auxiliar}\n\n` +
+                            `────────────────────────\n\n` +
+                            `🏢 *Cliente:* *${recojo.cliente}*\n\n` +
+                            `📋 *Detalle de Carga:*\n` +
+                            textoGases + `\n` +
+                            `╰──────────────────────────╯\n` +
+                            `  ✅ _Recojo Exitoso_`;
+
+            const textoCodificado = encodeURIComponent(mensaje);
+            const url = `https://api.whatsapp.com/send?text=${textoCodificado}`;
+            window.open(url, '_blank');
+        }
+
+        btnNuevaRuta.addEventListener('click', function() {
+            if (confirm('⚠️ ¿ESTÁS SEGURO? Se borrará todo el historial de la ruta actual.')) {
+                recojos = [];
+                localStorage.removeItem('recojos');
+                
+                document.getElementById('vehiculo').value = '';
+                document.getElementById('secuencia').value = '';
+                document.getElementById('conductor').value = '';
+                document.getElementById('auxiliar').value = '';
+                document.getElementById('cliente').value = '';
+                
+                document.getElementById('edit_id').value = '';
+                detallesTemp = [];
+                renderizarDetallesTemp();
+                btnSubmit.innerHTML = '💾 Guardar Recojo Completo';
+                btnSubmit.style.backgroundColor = 'var(--primary-color)';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                renderizarLista();
+            }
+        });
+
+        renderizarSelects(); 
+        renderizarLista();   
+
+    </script>
+</body>
+</html>
